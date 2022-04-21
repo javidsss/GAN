@@ -22,13 +22,8 @@ class FFHQ_Dataset(Dataset):
         super(FFHQ_Dataset, self).__init__()
 
         self.transform = transform
-
         self.train_loc = train_loc
-        self.train_foldernames = os.listdir(self.train_loc)
-        self.train_foldernames_NoExtra = []
-        for FolderNames in self.train_foldernames:
-            if FolderNames.endswith('000'):
-                self.train_foldernames_NoExtra.append(FolderNames)
+        self.ImageNames = os.listdir(self.train_loc)
 
     def ImagePreprocessing(self, train_loc_final):
         # train_data_numpy = np.array(nib.load(train_loc_final).get_fdata())
@@ -44,18 +39,18 @@ class FFHQ_Dataset(Dataset):
         return image
 
     def __getitem__(self, index):
-
-        for ImageName in os.listdir(os.path.join(self.train_loc, self.train_foldernames_NoExtra[index])):
-            if ImageName.endswith('.png'):
-                    Image_Loc = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], ImageName)
-                    Image_Final = self.ImagePreprocessing(Image_Loc)
+        if self.ImageNames[index].endswith('.png'):
+            Image_Loc = os.path.join(self.train_loc, self.ImageNames[index])
+            Image_Final = self.ImagePreprocessing(Image_Loc)
+        else:
+            Image_Final = []
 
         return Image_Final
 
     def __len__(self):
-        return len(self.train_foldernames_NoExtra)
+        return len(self.ImageNames)
 
-TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ-Images'
+TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
 batch_size = 1
 
 # IMAGE_HEIGHT = 512
