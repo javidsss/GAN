@@ -10,6 +10,7 @@ import math
 # from albumentations.pytorch import ToTensorV2
 from PIL import Image
 import csv
+import torchvision.transforms as transforms
 # import json
 
 # Metadata_Loc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ-Images/ffhq-dataset-v2.json'
@@ -30,18 +31,12 @@ class FFHQ_Dataset(Dataset):
         train_data = np.array(Image.open(train_loc_final))
         [h, w, z] = train_data.shape
 
-        # if self.transform is not None:
-        #     augmentations = self.transform(image=train_data)  # image and mask are dict names, I can use whatever name I want. Then I have to call them as I named them!
-        #     image = np.squeeze(augmentations["image"])  # For some reason, image is permuted extra!!
-        # else:
-        #     image = train_data
         if self.transform is not None:
             image = self.transform(train_data)  # image and mask are dict names, I can use whatever name I want. Then I have to call them as I named them!
         else:
             image = train_data
 
-        image = torch.from_numpy(image).unsqueeze(0)
-        return image
+        return image.unsqueeze(0)
 
     def __getitem__(self, index):
         if self.ImageNames[index].endswith('.png'):
@@ -59,8 +54,8 @@ if __name__ == "__main__":
     TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
     batch_size = 1
 
-    # IMAGE_HEIGHT = 512
-    # IMAGE_WIDTH = 512
+    IMAGE_HEIGHT = 128
+    IMAGE_WIDTH = 128
     # train_transform = A.Compose(
     #     [
     #         A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
@@ -75,8 +70,10 @@ if __name__ == "__main__":
     #         # ToTensorV2(),
     #     ],
     # )
-
-    DataLoadPractice = FFHQ_Dataset(TrainDataLoc, transform=None)
+    transforms = transforms.Compose(
+        [transforms.ToTensor(), transforms.Resize([IMAGE_HEIGHT, IMAGE_WIDTH]), transforms.Normalize((0.1307), (0.3081))]
+    )
+    DataLoadPractice = FFHQ_Dataset(TrainDataLoc, transform=transforms)
     IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
 
     for i, image in enumerate(IterationOfTheData):
