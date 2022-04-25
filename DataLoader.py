@@ -30,11 +30,16 @@ class FFHQ_Dataset(Dataset):
         train_data = np.array(Image.open(train_loc_final))
         [h, w, z] = train_data.shape
 
+        # if self.transform is not None:
+        #     augmentations = self.transform(image=train_data)  # image and mask are dict names, I can use whatever name I want. Then I have to call them as I named them!
+        #     image = np.squeeze(augmentations["image"])  # For some reason, image is permuted extra!!
+        # else:
+        #     image = train_data
         if self.transform is not None:
-            augmentations = self.transform(image=train_data)  # image and mask are dict names, I can use whatever name I want. Then I have to call them as I named them!
-            image = np.squeeze(augmentations["image"])  # For some reason, image is permuted extra!!
+            image = self.transform(train_data)  # image and mask are dict names, I can use whatever name I want. Then I have to call them as I named them!
         else:
             image = train_data
+
         image = torch.from_numpy(image).unsqueeze(0)
         return image
 
@@ -50,30 +55,30 @@ class FFHQ_Dataset(Dataset):
     def __len__(self):
         return len(self.ImageNames)
 
-TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
-batch_size = 1
+if __name__ == "__main__":
+    TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
+    batch_size = 1
 
-# IMAGE_HEIGHT = 512
-# IMAGE_WIDTH = 512
-# train_transform = A.Compose(
-#     [
-#         A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
-#         A.Rotate(limit=35, p=1.0),
-#         A.HorizontalFlip(p=0.5),
-#         A.VerticalFlip(p=0.1),
-#         A.Normalize(
-#             mean=[0.0],
-#             std=[1.0],
-#             max_pixel_value=255.0,
-#         ),
-#         # ToTensorV2(),
-#     ],
-# )
+    # IMAGE_HEIGHT = 512
+    # IMAGE_WIDTH = 512
+    # train_transform = A.Compose(
+    #     [
+    #         A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
+    #         A.Rotate(limit=35, p=1.0),
+    #         A.HorizontalFlip(p=0.5),
+    #         A.VerticalFlip(p=0.1),
+    #         A.Normalize(
+    #             mean=[0.0],
+    #             std=[1.0],
+    #             max_pixel_value=255.0,
+    #         ),
+    #         # ToTensorV2(),
+    #     ],
+    # )
 
+    DataLoadPractice = FFHQ_Dataset(TrainDataLoc, transform=None)
+    IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
 
-DataLoadPractice = FFHQ_Dataset(TrainDataLoc, transform=None)
-IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
-#
-for i, image in enumerate(IterationOfTheData):
-    for i in range(image.shape[0]):
-        x=2
+    for i, image in enumerate(IterationOfTheData):
+        for i in range(image.shape[0]):
+            x=2
