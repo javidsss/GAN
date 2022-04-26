@@ -20,7 +20,7 @@ Image_Height = 28
 Num_ColorChannels = 1
 Image_Dim_Total = Image_Width * Image_Height * Num_ColorChannels
 batch_size = 32
-num_epochs = 50
+num_epochs = 100
 
 class Discriminator(nn.Module):
     def __init__(self, Image_Dim_Total):
