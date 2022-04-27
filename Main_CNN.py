@@ -12,32 +12,32 @@ import sys
 TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
 
 ## Hyperparameters
-lr = 3e-4
-device = "cuda" if torch.cuda.is_available() else "cpu"
-Noise_Dim = 64
-Image_Width = 28
-Image_Height = 28
-Num_ColorChannels = 1
-Image_Dim_Total = Image_Width * Image_Height * Num_ColorChannels
-batch_size = 32
-num_epochs = 100
+# lr = 3e-4
+# device = "cuda" if torch.cuda.is_available() else "cpu"
+# Noise_Dim = 64
+# Image_Width = 28
+# Image_Height = 28
+# Num_ColorChannels = 1
+# Image_Dim_Total = Image_Width * Image_Height * Num_ColorChannels
+# batch_size = 32
+# num_epochs = 100
 
-class ConvBloc(nn.Module):
-    def __init__(self, in_channels):
-        super().__init__()
-
-        self.ConvBloc_Layer = nn.Sequential(
-            nn.Conv2d(in_channels, in_channels, kernel_size=3),
-            nn.BatchNorm2d(in_channels),
-            nn.LeakyReLU(0.01),
-            nn.Conv2d(in_channels, in_channels, kernel_size=3),
-            nn.BatchNorm2d(in_channels),
-            nn.Conv2d(in_channels, in_channels, kernel_size=3),
-            nn.BatchNorm2d(in_channels),
-        )
-
-    def forward(self, x):
-        return self.ConvBloc_Layer(x)
+# class ConvBloc(nn.Module):
+#     def __init__(self, in_channels):
+#         super().__init__()
+#
+#         self.ConvBloc_Layer = nn.Sequential(
+#             nn.Conv2d(in_channels, in_channels, kernel_size=3),
+#             nn.BatchNorm2d(in_channels),
+#             nn.LeakyReLU(0.01),
+#             nn.Conv2d(in_channels, in_channels, kernel_size=3),
+#             nn.BatchNorm2d(in_channels),
+#             nn.Conv2d(in_channels, in_channels, kernel_size=3),
+#             nn.BatchNorm2d(in_channels),
+#         )
+#
+#     def forward(self, x):
+#         return self.ConvBloc_Layer(x)
 
 ## Testing the first block!
 # ConvBlocBloc = ConvBloc(1)
@@ -46,18 +46,18 @@ class ConvBloc(nn.Module):
 # print(y.shape)
 # sys.exit("Error message")
 
-class Convblock_Downsample(nn.Module):
-    def __init__(self, in_channels):
-        super().__init__()
-        self.Convblock_Downsample_Layer = nn.Sequential(
-            nn.Conv2d(in_channels, 2*in_channels, kernel_size=4, stride=1, padding=1),
-            nn.BatchNorm2d(2*in_channels, 2*in_channels),
-            nn.LeakyReLU(0.01),
-            nn.Conv2d(2*in_channels, 4*in_channels, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(4*in_channels, 4*in_channels),
-        )
-    def forward(self, x):
-        return self.Convblock_Downsample_Layer(x)
+# class Convblock_Downsample(nn.Module):
+#     def __init__(self, in_channels):
+#         super().__init__()
+#         self.Convblock_Downsample_Layer = nn.Sequential(
+#             nn.Conv2d(in_channels, 2*in_channels, kernel_size=4, stride=1, padding=1),
+#             nn.BatchNorm2d(2*in_channels, 2*in_channels),
+#             nn.LeakyReLU(0.01),
+#             nn.Conv2d(2*in_channels, 4*in_channels, kernel_size=3, stride=1, padding=1),
+#             nn.BatchNorm2d(4*in_channels, 4*in_channels),
+#         )
+#     def forward(self, x):
+#         return self.Convblock_Downsample_Layer(x)
 
 ## Testing the block!
 # ConvblockDown = Convblock_Downsample(1)
@@ -67,20 +67,20 @@ class Convblock_Downsample(nn.Module):
 # sys.exit('Just testing')
 
 
-class Convblock_Upsample(nn.Module):
-    def __init__(self, in_channels):
-        super().__init__()
-
-        self.Convblock_Upsample_Layers = nn.Sequential(
-            nn.Conv2d(in_channels, int(in_channels/2), kernel_size=3),
-            nn.BatchNorm2d(int(in_channels/2), int(in_channels/2)),
-            nn.LeakyReLU(0.01),
-            nn.Conv2d(int(in_channels/2), int(in_channels/4), kernel_size=3),
-            nn.BatchNorm2d(int(in_channels/4), int(in_channels/4)),
-        )
-
-    def forward(self, x):
-        return self.Convblock_Upsample_Layers(x)
+# class Convblock_Upsample(nn.Module):
+#     def __init__(self, in_channels):
+#         super().__init__()
+#
+#         self.Convblock_Upsample_Layers = nn.Sequential(
+#             nn.Conv2d(in_channels, int(in_channels/2), kernel_size=3),
+#             nn.BatchNorm2d(int(in_channels/2), int(in_channels/2)),
+#             nn.LeakyReLU(0.01),
+#             nn.Conv2d(int(in_channels/2), int(in_channels/4), kernel_size=3),
+#             nn.BatchNorm2d(int(in_channels/4), int(in_channels/4)),
+#         )
+#
+#     def forward(self, x):
+#         return self.Convblock_Upsample_Layers(x)
 
 ## Testing the block!
 # ConvBlocDown = Convblock_Upsample(1)
@@ -91,7 +91,7 @@ class Convblock_Upsample(nn.Module):
 
 class Discriminator(nn.Module):
     def __init__(self, in_channels, feature_d):
-        super(Discriminator).__init__() #Differentce between super(Discriminator) and super() should be checked!
+        super().__init__() #Differentce between super(Discriminator) and super() should be checked!
 
         self.disc = nn.Sequential(
             nn.Conv2d(in_channels, feature_d, kernel_size=4, stride=2, padding=1),
@@ -109,31 +109,58 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(out_channel, out_channel),
             nn.LeakyReLU(0.2)
         )
-
     def forward(self, x):
         return self.disc(x)
 
+
 class Generator(nn.Module):
     def __init__(self, Noise_Dim, in_channels_img, feature_g):
-        super(Generator).__init__()
+        super(Generator, self).__init__()
         self.gen = nn.Sequential(
-            self.ConvBlock(Noise_Dim, feature_g*16, kernel_size=4, stride=2, padding=1),
-            self.ConvBlock(feature_g*16, feature_g*8, kernel_size=4, stride=2, padding=1),
-            self.ConvBlock(feature_g*8, feature_g*4, kernel_size=4, stride=2, padding=1),
-            self.ConvBlock(feature_g*4, feature_g*2, kernel_size=4, stride=2, padding=1),
-            nn.Conv2d(feature_g*2, in_channels_img, kernel_size=4, stride=2, padding=1),
+            self.ConvTransposeBlock(Noise_Dim, feature_g*16, kernel_size=4, stride=1, padding=0),
+            self.ConvTransposeBlock(feature_g*16, feature_g*8, kernel_size=4, stride=2, padding=1),
+            self.ConvTransposeBlock(feature_g*8, feature_g*4, kernel_size=4, stride=2, padding=1),
+            self.ConvTransposeBlock(feature_g*4, feature_g*2, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(feature_g*2, in_channels_img, kernel_size=4, stride=2, padding=1),
             nn.Tanh()
         )
 
-    def ConvBlock(self, in_channels, out_channels, kernel_size, stride, padding):
-        nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
-            nn.BatchNorm2d(out_channels, out_channels),
-            nn.ReLU()
-        )
+    def ConvTransposeBlock(self, in_channels, out_channels, kernel_size, stride, padding):
+        return nn.Sequential(
+                nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, bias=False),
+                nn.BatchNorm2d(out_channels, out_channels),
+                nn.ReLU()
+            )
     def forward(self, x):
         return self.gen(x)
 
+
+def Initialize_Weight(Model):
+    for m in Model.modules():
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
+            nn.init.normal_(m.weight.data, 0.0, 0.02)
+    return Model
+
+def test(N, in_channel, Height, Width, Noise_dim):
+    InputDisc = torch.randn(N, in_channel, Height, Width)
+
+    disc = Discriminator(in_channel, feature_d=8)
+    Initialize_Weight(disc)
+    # assert disc(Input).shape == (N, 1, 1, 1)
+    TestDisc = disc(InputDisc)
+    print(F"Discriminator test: {TestDisc.shape}")
+
+    img_channel = in_channel
+    InputGen_Noise = torch.randn(N, Noise_dim, 1, 1)
+    gen = Generator(Noise_dim, img_channel, 8)
+    Initialize_Weight(gen)
+    # assert gen(InputGen_Noise).shape == (N, in_channel, 1, 1)
+    TestGen = gen(InputGen_Noise)
+    print(f"Generator test: {TestGen.shape}")
+
+test(8, 3, 64, 64, 100)
+
+sys.exit("Testing the Disc and Genrator networks")
 
 disc = Discriminator(Image_Dim_Total).to(device)
 gen = Generator(Noise_Dim, Image_Dim_Total).to(device)
