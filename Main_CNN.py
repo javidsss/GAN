@@ -13,8 +13,8 @@ Model_Save = True
 Model_Load = False
 
 if Model_Load is True:
-    ModelVersion_disc = "/Model_Save/Discriminator_Epoch0_BatchIdx60.pth"
-    ModelVersion_gen = "/Model_Save/Generator_Epoch0_BatchIdx60.pth"
+    ModelVersion_disc = "/Model_Save_DCGAN/Discriminator_Epoch0_BatchIdx60.pth"
+    ModelVersion_gen = "/Model_Save_DCGAN/Generator_Epoch0_BatchIdx60.pth"
 
 FFHQdataset = False
 MNISTdataset = False
