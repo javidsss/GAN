@@ -114,6 +114,8 @@ for epoch in range(num_epochs):
         Real_Image = Real_Image.to(device)
         for i in range(Critic_Iteration):
             Noise_input = torch.randn(batch_size, Noise_Dim, 1, 1).to(device)
+
+            ## Discriminator Loss
             Gen_Noise = gen(Noise_input)
             critic_real = critic(Real_Image).reshape(-1)
             critic_fake = critic(Gen_Noise).reshape(-1)
@@ -125,8 +127,13 @@ for epoch in range(num_epochs):
 
             for p in critic.parameters():
                 p.data.clamp_(-Weight_Clip, +Weight_Clip)
-            
 
+            ## Generator Loss
+            Gen_Noise = gen(Noise_input)
+            loss_gen = torch.mean(critic(Gen_Noise))
+            gen.zero_grad()
+            loss_gen.backward()
+            gen_Optim.step()
 
         if Batch_Index % 200 == 0 and Batch_Index != 0:
             if Model_Save == True:

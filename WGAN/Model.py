@@ -1,13 +1,11 @@
 import torch
 import torch.nn as nn
 
-def ModelSave_func(model, optimization, loss, batch_num, epoch_num, path):
-    checkpoint = {'epoch': epoch_num, 'State_dict': model.state_dict(), 'Optimizer': optimization.state_dict(), 'loss': loss, 'batch_num': batch_num}
-    torch.save(checkpoint, path)
 
-class Discriminator(nn.Module):
+
+class critic(nn.Module):
     def __init__(self, in_channels, feature_d):
-        super(Discriminator, self).__init__() #Differentce between super(Discriminator) and super() should be checked!
+        super(critic, self).__init__() #Differentce between super(Discriminator) and super() should be checked!
 
         self.disc = nn.Sequential(
             nn.Conv2d(in_channels, feature_d, kernel_size=4, stride=2, padding=1),
@@ -16,7 +14,6 @@ class Discriminator(nn.Module):
             self.ConvBlock(feature_d*2, feature_d*4, kernel_size=4, stride=2, padding=1),
             self.ConvBlock(feature_d*4, feature_d*8, kernel_size=4, stride=2, padding=1),
             nn.Conv2d(feature_d*8, 1, kernel_size=4, stride=2, padding=0),
-            nn.Sigmoid()
         )
 
     def ConvBlock(self, in_channels, out_channel, kernel_size, stride, padding):
@@ -53,3 +50,28 @@ def Initialize_Weight(Model):
     for m in Model.modules():
         if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
             nn.init.normal_(m.weight.data, 0.0, 0.02)
+
+
+# def test(N, in_channel, Height, Width, Noise_dim):
+#     InputDisc = torch.randn(N, in_channel, Height, Width)
+#
+#     disc = Discriminator(in_channel, feature_d=8)
+#     Initialize_Weight(disc)
+#     # assert disc(Input).shape == (N, 1, 1, 1)
+#     TestDisc = disc(InputDisc)
+#     print(F"Discriminator test: {TestDisc.shape}")
+#
+#     img_channel = in_channel
+#     InputGen_Noise = torch.randn(N, Noise_dim, 1, 1)
+#     gen = Generator(Noise_dim, img_channel, 8)
+#     Initialize_Weight(gen)
+#     # assert gen(InputGen_Noise).shape == (N, in_channel, 1, 1)
+#     TestGen = gen(InputGen_Noise)
+#     print(f"Generator test: {TestGen.shape}")
+
+# test(8, 3, 64, 64, 100)
+
+# sys.exit("Testing the Disc and Genrator networks")
+
+# if __name__== "__Main__":
+#     Model
