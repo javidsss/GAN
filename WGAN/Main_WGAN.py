@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
-from DataLoader import FFHQ_Dataset
+# from DataLoader import FFHQ_Dataset
 from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 from Model import Critic, Generator, Initialize_Weight
@@ -27,7 +27,7 @@ if FFHQdataset == True:
 if MNISTdataset == True:
     TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/MNIST_Data"
 if Celebdataset == True:
-    TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/Celeb'
+    TrainDataLoc = "C:/TransferToServerJavid/Celeb"
 
 ## Hyperparameters
 lr = 5e-5
@@ -93,7 +93,7 @@ if MNISTdataset == True:
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
 if Celebdataset == True:
-    TrainDataLocFinal = TrainDataLoc+"/Celeb_Dataset"
+    TrainDataLocFinal = TrainDataLoc+"\Celeb_Dataset"
     DataLoading = datasets.ImageFolder(root=TrainDataLocFinal, transform=transforms)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
@@ -133,12 +133,15 @@ for epoch in range(num_epochs):
         gen.zero_grad()
         loss_gen.backward()
         gen_Optim.step()
+        
+        
+   
 
 
-        if Batch_Index % 100 == 0 and Batch_Index != 0:
+        if Batch_Index % 600 == 0 and Batch_Index != 0:
             if Model_Save == True:
-                ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/critriminator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
-                ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}\Model_Save_WGAN\critic_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}\Model_Save_WGAN\Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
 
         if Batch_Index % 10 == 0:
             print(f"Batch: [{Batch_Index}/{len(IterationOfTheData)}] \ "
