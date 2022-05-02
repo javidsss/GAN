@@ -2,10 +2,9 @@ import torch
 import torch.nn as nn
 
 
-
-class critic(nn.Module):
+class Critic(nn.Module):
     def __init__(self, in_channels, feature_d):
-        super(critic, self).__init__() #Differentce between super(Discriminator) and super() should be checked!
+        super(Critic, self).__init__() #Differentce between super(Discriminator) and super() should be checked!
 
         self.disc = nn.Sequential(
             nn.Conv2d(in_channels, feature_d, kernel_size=4, stride=2, padding=1),
@@ -19,7 +18,7 @@ class critic(nn.Module):
     def ConvBlock(self, in_channels, out_channel, kernel_size, stride, padding):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channel, kernel_size, stride, padding, bias=False),
-            nn.BatchNorm2d(out_channel),
+            nn.InstanceNorm2d(out_channel, affine=True),
             nn.LeakyReLU(0.2)
         )
     def forward(self, x):
@@ -48,8 +47,9 @@ class Generator(nn.Module):
 
 def Initialize_Weight(Model):
     for m in Model.modules():
-        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d, nn.InstanceNorm2d)):
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
             nn.init.normal_(m.weight.data, 0.0, 0.02)
+
 
 
 # def test(N, in_channel, Height, Width, Noise_dim):

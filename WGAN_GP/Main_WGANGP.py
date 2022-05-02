@@ -7,6 +7,7 @@ from DataLoader import FFHQ_Dataset
 from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 from Model import critic, Generator, Initialize_Weight
+from Utils import gradient_penalty
 import matplotlib.pyplot as plt
 import sys
 
@@ -30,7 +31,7 @@ if Celebdataset == True:
     TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/Celeb'
 
 ## Hyperparameters
-lr = 5e-5
+lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 Noise_Dim = 128
 Image_Width = 64
@@ -42,7 +43,7 @@ feature_d = 64
 feature_g = 64
 Num_Imgs_On_Tensorboard = 32
 Critic_Iteration = 5
-Weight_Clip = 0.01
+Lambda_GradientPenalty = 10
 
 def ModelSave_func(model, optimization, loss, batch_num, epoch_num, path):
     checkpoint = {'epoch': epoch_num, 'State_dict': model.state_dict(), 'Optimizer': optimization.state_dict(), 'loss': loss, 'batch_num': batch_num}
@@ -54,8 +55,8 @@ gen = Generator(Noise_Dim, Num_ColorChannels, feature_g).to(device)
 Initialize_Weight(crit)
 Initialize_Weight(gen)
 
-crit_Optim = torch.optim.RMSprop(crit.parameters(), lr=lr)
-gen_Optim = torch.optim.RMSprop(gen.parameters(), lr=lr)
+crit_Optim = torch.optim.Adam(crit.parameters(), lr=lr, betas=(0.0, 0.9))
+gen_Optim = torch.optim.Adam(gen.parameters(), lr=lr, betas=(0.0, 0.9))
 
 
 if Model_Load is True:
@@ -116,20 +117,18 @@ for epoch in range(num_epochs):
             Noise_input = torch.randn(batch_size, Noise_Dim, 1, 1).to(device)
 
             ## Discriminator Loss
-            Gen_Noise = gen(Noise_input)
+            Gen_Img = gen(Noise_input)
             crit_real = crit(Real_Image).reshape(-1)
-            crit_fake = crit(Gen_Noise).reshape(-1)
-
-            loss_crit = -(torch.mean(crit_real) - torch.mean(crit_fake)) #Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
+            crit_fake = crit(Gen_Img).reshape(-1)
+            gp = gradient_penalty(Gen_Img, Real_Image, crit, device)
+            loss_crit = -(torch.mean(crit_real) - torch.mean(crit_fake)) + Lambda_GradientPenalty * gp #Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
             crit.zero_grad()
             loss_crit.backward(retain_graph=True)
             crit_Optim.step()
 
-            for p in crit.parameters():
-                p.data.clamp_(-Weight_Clip, +Weight_Clip)
 
             ## Generator Loss: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
-        loss_gen = -torch.mean(crit(Gen_Noise).reshape(-1))
+        loss_gen = -torch.mean(crit(Gen_Img).reshape(-1))
         gen.zero_grad()
         loss_gen.backward()
         gen_Optim.step()

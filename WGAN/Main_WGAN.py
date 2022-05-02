@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 from DataLoader import FFHQ_Dataset
 from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
-from Model import critic, Generator, Initialize_Weight
+from Model import Critic, Generator, Initialize_Weight
 import matplotlib.pyplot as plt
 import sys
 
@@ -36,7 +36,7 @@ Noise_Dim = 128
 Image_Width = 64
 Image_Height = 64
 Num_ColorChannels = 3
-batch_size = 128
+batch_size = 64
 num_epochs = 100
 feature_d = 64
 feature_g = 64
@@ -48,7 +48,7 @@ def ModelSave_func(model, optimization, loss, batch_num, epoch_num, path):
     checkpoint = {'epoch': epoch_num, 'State_dict': model.state_dict(), 'Optimizer': optimization.state_dict(), 'loss': loss, 'batch_num': batch_num}
     torch.save(checkpoint, path)
 
-crit = critic(Num_ColorChannels, feature_d).to(device)
+crit = Critic(Num_ColorChannels, feature_d).to(device)
 gen = Generator(Noise_Dim, Num_ColorChannels, feature_g).to(device)
 
 Initialize_Weight(crit)
@@ -116,9 +116,9 @@ for epoch in range(num_epochs):
             Noise_input = torch.randn(batch_size, Noise_Dim, 1, 1).to(device)
 
             ## Discriminator Loss
-            Gen_Noise = gen(Noise_input)
+            Gen_Img = gen(Noise_input)
             crit_real = crit(Real_Image).reshape(-1)
-            crit_fake = crit(Gen_Noise).reshape(-1)
+            crit_fake = crit(Gen_Img).reshape(-1)
 
             loss_crit = -(torch.mean(crit_real) - torch.mean(crit_fake)) #Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
             crit.zero_grad()
@@ -128,39 +128,14 @@ for epoch in range(num_epochs):
             for p in crit.parameters():
                 p.data.clamp_(-Weight_Clip, +Weight_Clip)
 
-            ## Generator Loss: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
-        loss_gen = -torch.mean(crit(Gen_Noise).reshape(-1))
+            ## Generator Loss: max E[Critic(gen_fake)] <-> min -E[Critic(gen_fake)]
+        loss_gen = -torch.mean(crit(Gen_Img).reshape(-1))
         gen.zero_grad()
         loss_gen.backward()
         gen_Optim.step()
 
-        # Real_Image = Real_Image.to(device)
-        # cur_batch_size = Real_Image.shape[0]
-        #
-        # # Train Critic: max E[critic(real)] - E[critic(fake)]
-        # for _ in range(Critic_Iteration):
-        #     noise = torch.randn(cur_batch_size, Noise_Dim, 1, 1).to(device)
-        #     fake = gen(noise)
-        #     critic_real = crit(Real_Image).reshape(-1)
-        #     critic_fake = crit(fake).reshape(-1)
-        #     loss_crit = -(torch.mean(critic_real) - torch.mean(critic_fake))
-        #     crit.zero_grad()
-        #     loss_crit.backward(retain_graph=True)
-        #     crit_Optim.step()
-        #
-        #     # clip critic weights between -0.01, 0.01
-        #     for p in crit.parameters():
-        #         p.data.clamp_(-Weight_Clip, Weight_Clip)
-        #
-        # # Train Generator: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
-        # gen_fake = crit(fake).reshape(-1)
-        # loss_gen = -torch.mean(gen_fake)
-        # gen.zero_grad()
-        # loss_gen.backward()
-        # gen_Optim.step()
 
-
-        if Batch_Index % 5 == 0 and Batch_Index != 0:
+        if Batch_Index % 100 == 0 and Batch_Index != 0:
             if Model_Save == True:
                 ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/critriminator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
                 ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
@@ -168,7 +143,7 @@ for epoch in range(num_epochs):
         if Batch_Index % 10 == 0:
             print(f"Batch: [{Batch_Index}/{len(IterationOfTheData)}] \ "
                   f"Epoch: [{epoch}/{num_epochs}] \ "
-                  f"Loss critic: {loss_crit: 0.4f} & Loss Generator: {loss_gen: 0.4f}"
+                  f"Loss Critic: {loss_crit: 0.4f} & Loss Generator: {loss_gen: 0.4f}"
             )
 
             with torch.no_grad():

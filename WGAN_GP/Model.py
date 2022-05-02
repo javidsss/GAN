@@ -18,7 +18,7 @@ class critic(nn.Module):
     def ConvBlock(self, in_channels, out_channel, kernel_size, stride, padding):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channel, kernel_size, stride, padding, bias=False),
-            nn.BatchNorm2d(out_channel),
+            nn.InstanceNorm2d(out_channel, affine=True),
             nn.LeakyReLU(0.2)
         )
     def forward(self, x):
