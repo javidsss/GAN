@@ -134,6 +134,32 @@ for epoch in range(num_epochs):
         loss_gen.backward()
         gen_Optim.step()
 
+        # Real_Image = Real_Image.to(device)
+        # cur_batch_size = Real_Image.shape[0]
+        #
+        # # Train Critic: max E[critic(real)] - E[critic(fake)]
+        # for _ in range(Critic_Iteration):
+        #     noise = torch.randn(cur_batch_size, Noise_Dim, 1, 1).to(device)
+        #     fake = gen(noise)
+        #     critic_real = crit(Real_Image).reshape(-1)
+        #     critic_fake = crit(fake).reshape(-1)
+        #     loss_crit = -(torch.mean(critic_real) - torch.mean(critic_fake))
+        #     crit.zero_grad()
+        #     loss_crit.backward(retain_graph=True)
+        #     crit_Optim.step()
+        #
+        #     # clip critic weights between -0.01, 0.01
+        #     for p in crit.parameters():
+        #         p.data.clamp_(-Weight_Clip, Weight_Clip)
+        #
+        # # Train Generator: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
+        # gen_fake = crit(fake).reshape(-1)
+        # loss_gen = -torch.mean(gen_fake)
+        # gen.zero_grad()
+        # loss_gen.backward()
+        # gen_Optim.step()
+
+
         if Batch_Index % 5 == 0 and Batch_Index != 0:
             if Model_Save == True:
                 ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/critriminator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
