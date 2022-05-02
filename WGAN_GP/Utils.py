@@ -3,7 +3,7 @@ import torch.nn as nn
 
 def gradient_penalty(gen_image, real_image, critic, device = 'cpu'):
 
-    [batch_size, H, W, Num_Ch] = real_image.shape
+    [batch_size, Num_Ch, H, W] = real_image.shape
     Epsilon = torch.rand(batch_size, 1, 1, 1).repeat(1, Num_Ch, H, W).to(device)
     Interp_Image = Epsilon * real_image + (1 - Epsilon) * gen_image
     critic_Inter = critic(Interp_Image)
