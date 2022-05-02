@@ -14,7 +14,7 @@ Model_Save = True
 Model_Load = False
 
 if Model_Load is True:
-    ModelVersion_critic = "/Model_Save_WGAN/Critic_Epochxx_BatchIdxxx.pth"
+    ModelVersion_crit = "/Model_Save_WGAN/Critic_Epochxx_BatchIdxxx.pth"
     ModelVersion_gen = "/Model_Save_WGAN/Generator_Epochxx_BatchIdxxx.pth"
 
 FFHQdataset = False
@@ -32,7 +32,7 @@ if Celebdataset == True:
 ## Hyperparameters
 lr = 5e-5
 device = "cuda" if torch.cuda.is_available() else "cpu"
-Noise_Dim = 100
+Noise_Dim = 128
 Image_Width = 64
 Image_Height = 64
 Num_ColorChannels = 3
@@ -48,24 +48,24 @@ def ModelSave_func(model, optimization, loss, batch_num, epoch_num, path):
     checkpoint = {'epoch': epoch_num, 'State_dict': model.state_dict(), 'Optimizer': optimization.state_dict(), 'loss': loss, 'batch_num': batch_num}
     torch.save(checkpoint, path)
 
-cri = critic(Num_ColorChannels, feature_d).to(device)
+crit = critic(Num_ColorChannels, feature_d).to(device)
 gen = Generator(Noise_Dim, Num_ColorChannels, feature_g).to(device)
 
-Initialize_Weight(critic)
+Initialize_Weight(crit)
 Initialize_Weight(gen)
 
-critic_Optim = torch.optim.RMSprop(critic.parameters(), lr=lr)
+crit_Optim = torch.optim.RMSprop(crit.parameters(), lr=lr)
 gen_Optim = torch.optim.RMSprop(gen.parameters(), lr=lr)
 
 
 if Model_Load is True:
-    ModelLocation_critic = TrainDataLoc + ModelVersion_critic
-    Loaded_Checkpoint_critic = torch.load(ModelLocation_critic)
-    critic.load_state_dict(Loaded_Checkpoint_critic['State_dict'])
-    critic_Optim.load_state_dict(Loaded_Checkpoint_critic['Optimizer'])
-    epoch_saved = Loaded_Checkpoint_critic['epoch']
-    batch_saved = Loaded_Checkpoint_critic['batch_num']
-    loss_critic = Loaded_Checkpoint_critic['loss']
+    ModelLocation_crit = TrainDataLoc + ModelVersion_crit
+    Loaded_Checkpoint_crit = torch.load(ModelLocation_crit)
+    crit.load_state_dict(Loaded_Checkpoint_crit['State_dict'])
+    crit_Optim.load_state_dict(Loaded_Checkpoint_crit['Optimizer'])
+    epoch_saved = Loaded_Checkpoint_crit['epoch']
+    batch_saved = Loaded_Checkpoint_crit['batch_num']
+    loss_crit = Loaded_Checkpoint_crit['loss']
 
     ModelLocation_gen = TrainDataLoc + ModelVersion_gen
     Loaded_Checkpoint_gen = torch.load(ModelLocation_gen)
@@ -79,7 +79,7 @@ transforms = transforms.Compose(
     transforms.ToTensor(),
     transforms.Resize([Image_Width, Image_Height]),
     transforms.Normalize(
-        [0.5 for _ in range(Num_ColorChannels)], [0.5 for _ in range(Num_ColorChannels)]
+        [0.5 for ii in range(Num_ColorChannels)], [0.5 for ii in range(Num_ColorChannels)]
     )
     ]
 )
@@ -117,33 +117,32 @@ for epoch in range(num_epochs):
 
             ## Discriminator Loss
             Gen_Noise = gen(Noise_input)
-            critic_real = critic(Real_Image).reshape(-1)
-            critic_fake = critic(Gen_Noise).reshape(-1)
+            crit_real = crit(Real_Image).reshape(-1)
+            crit_fake = crit(Gen_Noise).reshape(-1)
 
-            loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake)) #Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
-            critic.zero_grad()
-            loss_critic.backward(retain_graph=True)
-            critic_Optim.step()
+            loss_crit = -(torch.mean(crit_real) - torch.mean(crit_fake)) #Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
+            crit.zero_grad()
+            loss_crit.backward(retain_graph=True)
+            crit_Optim.step()
 
-            for p in critic.parameters():
+            for p in crit.parameters():
                 p.data.clamp_(-Weight_Clip, +Weight_Clip)
 
-            ## Generator Loss
-            Gen_Noise = gen(Noise_input)
-            loss_gen = torch.mean(critic(Gen_Noise))
-            gen.zero_grad()
-            loss_gen.backward()
-            gen_Optim.step()
+            ## Generator Loss: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
+        loss_gen = -torch.mean(crit(Gen_Noise).reshape(-1))
+        gen.zero_grad()
+        loss_gen.backward()
+        gen_Optim.step()
 
-        if Batch_Index % 200 == 0 and Batch_Index != 0:
+        if Batch_Index % 5 == 0 and Batch_Index != 0:
             if Model_Save == True:
-                ModelSave_func(critic, critic_Optim, loss_critic, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save/criticriminator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
-                ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/critriminator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGAN/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
 
         if Batch_Index % 10 == 0:
             print(f"Batch: [{Batch_Index}/{len(IterationOfTheData)}] \ "
-                  f"eEpoch: [{epoch}/{num_epochs}] \ "
-                  f"Loss criticriminator: {loss_critic: 0.4f} & Loss Generator: {loss_gen: 0.4f}"
+                  f"Epoch: [{epoch}/{num_epochs}] \ "
+                  f"Loss critic: {loss_crit: 0.4f} & Loss Generator: {loss_gen: 0.4f}"
             )
 
             with torch.no_grad():
