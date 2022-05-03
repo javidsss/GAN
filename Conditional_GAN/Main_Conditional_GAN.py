@@ -15,19 +15,19 @@ Model_Save = True
 Model_Load = False
 
 if Model_Load is True:
-    ModelVersion_crit = "/Model_Save_WGANGP/Critic_Epoch0_BatchIdx2400.pth"
-    ModelVersion_gen = "/Model_Save_WGANGP/Generator_Epoch0_BatchIdx2400.pth"
+    ModelVersion_crit = "/Model_Save_Conditional_GAN/Critic_Epoch0_BatchIdxxx.pth"
+    ModelVersion_gen = "/Model_Save_Conditional_GAN/Generator_Epoch0_BatchIdxxx.pth"
 
 FFHQdataset = False
-MNISTdataset = False
-Celebdataset = True
+MNISTdataset = True
+Celebdataset = False
 
 if FFHQdataset == True:
-    TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/FFHQ/Images_Combined'
+    TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/FFHQ/Images_Combined'
 if MNISTdataset == True:
-    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/MNIST_Data"
+    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/MNIST_Data"
 if Celebdataset == True:
-    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/Explicit-GAN-Project/Celeb"
+    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/Celeb"
 
 ## Hyperparameters
 lr = 1e-4
@@ -35,8 +35,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 Noise_Dim = 128
 Image_Width = 64
 Image_Height = 64
-Num_ColorChannels = 3
-batch_size = 128
+Num_ColorChannels = 1
+Num_Classes = 10
+Gen_Embedding_Num = 100
+batch_size = 32
 num_epochs = 100
 feature_d = 64
 feature_g = 64
@@ -51,8 +53,8 @@ def ModelSave_func(model, optimization, loss, batch_num, epoch_num, path):
     torch.save(checkpoint, path)
 
 
-crit = critic(Num_ColorChannels, feature_d).to(device)
-gen = Generator(Noise_Dim, Num_ColorChannels, feature_g).to(device)
+crit = critic(Num_ColorChannels, feature_d, Num_Classes, Image_Height, Image_Width).to(device)
+gen = Generator(Noise_Dim, Num_ColorChannels, feature_g, Num_Classes, Image_Height, Image_Width, Gen_Embedding_Num).to(device)
 
 Initialize_Weight(crit)
 Initialize_Weight(gen)
@@ -108,20 +110,21 @@ for epoch in range(num_epochs):
         epoch = epoch_saved + epoch
         if batch_saved == len(IterationOfTheData):
             epoch = epoch + 1
-    for Batch_Index, (Real_Image, _) in enumerate(IterationOfTheData):
+    for Batch_Index, (Real_Image, Labels) in enumerate(IterationOfTheData):
         if Model_Load is True:
             Batch_Index = batch_saved + Batch_Index + 1
 
         batch_size = Real_Image.shape[0]
         Real_Image = Real_Image.to(device)
+        Labels = Labels.to(device)
         for i in range(Critic_Iteration):
             Noise_input = torch.randn(batch_size, Noise_Dim, 1, 1).to(device)
 
             ## Discriminator Loss
-            Gen_Img = gen(Noise_input)
-            crit_real = crit(Real_Image).reshape(-1)
-            crit_fake = crit(Gen_Img).reshape(-1)
-            gp = gradient_penalty(Gen_Img, Real_Image, crit, device)
+            Gen_Img = gen(Noise_input, Labels)
+            crit_real = crit(Real_Image, Labels).reshape(-1)
+            crit_fake = crit(Gen_Img, Labels).reshape(-1)
+            gp = gradient_penalty(Gen_Img, Real_Image, crit, Labels, device)
             loss_crit = -(torch.mean(crit_real) - torch.mean(
                 crit_fake)) + Lambda_GradientPenalty * gp  # Minimizing the negative format of this equation do that technically we arw maximizing it according to the paper!
             crit.zero_grad()
@@ -129,7 +132,7 @@ for epoch in range(num_epochs):
             crit_Optim.step()
 
             ## Generator Loss: max E[critic(gen_fake)] <-> min -E[critic(gen_fake)]
-        loss_gen = -torch.mean(crit(Gen_Img).reshape(-1))
+        loss_gen = -torch.mean(crit(Gen_Img, Labels).reshape(-1))
         gen.zero_grad()
         loss_gen.backward()
         gen_Optim.step()
@@ -137,9 +140,9 @@ for epoch in range(num_epochs):
         if Batch_Index % 800 == 0 and Batch_Index != 0:
             if Model_Save == True:
                 ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch,
-                               path=f'{TrainDataLoc}/Model_Save_WGANGP/Critic_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                               path=f'{TrainDataLoc}/Model_Save_ConditionalGAN/Critic_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
                 ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch,
-                               path=f'{TrainDataLoc}/Model_Save_WGANGP/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
+                               path=f'{TrainDataLoc}/Model_Save_ConditionalGAN/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
 
         if Batch_Index % 5 == 0:
             print(f"Batch: [{Batch_Index}/{len(IterationOfTheData)}] \ "
@@ -148,7 +151,7 @@ for epoch in range(num_epochs):
                   )
 
             with torch.no_grad():
-                fake_Image = gen(fixed_noise_For_Tensorboard)
+                fake_Image = gen(fixed_noise_For_Tensorboard, Labels)
 
                 img_grid_fake = torchvision.utils.make_grid(fake_Image, normalize=True)
                 img_grid_real = torchvision.utils.make_grid(Real_Image[:Num_Imgs_On_Tensorboard], normalize=True)
