@@ -15,8 +15,8 @@ Model_Save = True
 Model_Load = True
 
 if Model_Load is True:
-    ModelVersion_crit = "/Model_Save_WGANGP/Critic_Epoch0_BatchIdx1580.pth"
-    ModelVersion_gen = "/Model_Save_WGANGP/Generator_Epoch0_BatchIdx1580.pth"
+    ModelVersion_crit = "/Model_Save_WGANGP/Critic_Epoch0_BatchIdx2400.pth"
+    ModelVersion_gen = "/Model_Save_WGANGP/Generator_Epoch0_BatchIdx2400.pth"
 
 FFHQdataset = False
 MNISTdataset = False
@@ -111,7 +111,8 @@ for epoch in range(num_epochs):
     for Batch_Index, (Real_Image, _) in enumerate(IterationOfTheData):
         if Model_Load is True:
             Batch_Index = batch_saved + Batch_Index + 1
-
+        
+        batch_size = Real_Image.shape[0]
         Real_Image = Real_Image.to(device)
         for i in range(Critic_Iteration):
             Noise_input = torch.randn(batch_size, Noise_Dim, 1, 1).to(device)
