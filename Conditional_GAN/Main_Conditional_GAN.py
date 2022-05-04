@@ -5,11 +5,12 @@ import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
 # from DataLoader import FFHQ_Dataset
 from torch.utils.data import DataLoader
+# from DataLoaderCerebellum import CerebellumData
 import torchvision.datasets as datasets
 from Model import critic, Generator, Initialize_Weight
 from Utils import gradient_penalty
-import matplotlib.pyplot as plt
-import sys
+# import matplotlib.pyplot as plt
+# import sys
 
 Model_Save = True
 Model_Load = False
@@ -21,13 +22,19 @@ if Model_Load is True:
 FFHQdataset = False
 MNISTdataset = True
 Celebdataset = False
+Cerebellumdataset = False
 
-if FFHQdataset == True:
+if FFHQdataset is True:
     TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/FFHQ/Images_Combined'
-if MNISTdataset == True:
-    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/MNIST_Data"
-if Celebdataset == True:
+if MNISTdataset is True:
+    TrainDataLoc = "C:\TransferToServerJavid\MNIST_Data"
+if Celebdataset is True:
     TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/Celeb"
+if Cerebellumdataset is True:
+    TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari"
+    import nibabel as nib
+    import math
+
 
 ## Hyperparameters
 lr = 1e-4
@@ -87,17 +94,21 @@ transforms = transforms.Compose(
     ]
 )
 
-if FFHQdataset == True:
+if FFHQdataset is True:
     DataLoading = FFHQ_Dataset(TrainDataLoc, transform=transforms)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
-if MNISTdataset == True:
+if MNISTdataset is True:
     DataLoading = datasets.MNIST(root=TrainDataLoc, transform=transforms, download=True)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
-if Celebdataset == True:
+if Celebdataset is True:
     TrainDataLocFinal = TrainDataLoc + "/Celeb_Dataset"
     DataLoading = datasets.ImageFolder(root=TrainDataLocFinal, transform=transforms)
+    IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
+
+if Cerebellumdataset is True:
+    DataLoading = CerebellumData(TrainDataLoc, transform=transforms)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
 fixed_noise_For_Tensorboard = torch.randn(Num_Imgs_On_Tensorboard, Noise_Dim, 1, 1).to(device)
