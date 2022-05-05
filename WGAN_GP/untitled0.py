@@ -61,46 +61,47 @@ class CerebellumData(Dataset):
         if self.transform is not None:    
             maskedimage = train_mask_final*train_data_final
             maskedimage = self.transform(maskedimage)
+            nib.save(maskedimage.to(torch.float32), os.path.join(train_loc_final, '2DTonsil.nii'))
 
         else:
             maskedimage = train_mask_final * train_data_final
-
+            SavePath = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil.nii')
+            Path2 = "C:\TransferToServerJavid\file.nii.gz" #'C:\Users\Kurtlab\Desktop\here.nii'
+            nib.save(maskedimage,Path2)
+            
         return maskedimage.to(torch.float32), 0
 
     def __len__(self):
         return len(self.train_mask_foldernames_NoExtra)
 
 
-# TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari"
-# Noise_Dim = 128
-# Image_Width = 64
-# Image_Height = 64
-# Num_ColorChannels = 1
-# batch_size = 8
-# num_epochs = 100
-# feature_d = 64
-# feature_g = 64
-# Num_Imgs_On_Tensorboard = 32
-# Critic_Iteration = 5
-# Lambda_GradientPenalty = 10
+TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari\Data"
+Noise_Dim = 128
+Image_Width = 64
+Image_Height = 64
+Num_ColorChannels = 1
+batch_size = 8
+num_epochs = 100
+feature_d = 64
+feature_g = 64
+Num_Imgs_On_Tensorboard = 32
+Critic_Iteration = 5
+Lambda_GradientPenalty = 10
 
-# transforms = transforms.Compose(
-#     [
-#     transforms.ToTensor(),
-#     transforms.Resize([Image_Width, Image_Height]),
-#     transforms.Normalize(
-#         [0.5 for ii in range(Num_ColorChannels)], [0.5 for ii in range(Num_ColorChannels)]
-#     )
-#     ]
-# )
+transforms = transforms.Compose(
+    [
+    transforms.ToTensor(),
+    transforms.Resize([Image_Width, Image_Height]),
+    transforms.Normalize(
+        [0.5 for ii in range(Num_ColorChannels)], [0.5 for ii in range(Num_ColorChannels)]
+    )
+    ]
+)
 
 
-# DataLoadPractice = CerebellumData(TrainDataLoc, transform=transforms)
-# IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
+DataLoadPractice = CerebellumData(TrainDataLoc, transform=None)
+IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
 
-# for i, image in enumerate(IterationOfTheData):
-#     for i in range(image.shape[0]):
-#         # plt.figure()
-#         plt.imshow(image[i,0,:,:], cmap='gray')
-#         plt.imshow(mask[i,0,:,:], cmap='gray', alpha=0.7)
-#         plt.close('all')
+for i, image in enumerate(IterationOfTheData):
+    for i in range(image.shape[0]):
+        plt.imshow(image[0,0,0])

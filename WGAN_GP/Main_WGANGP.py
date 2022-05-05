@@ -30,7 +30,7 @@ if FFHQdataset is True:
 if MNISTdataset is True:
     TrainDataLoc = "C:\TransferToServerJavid\MNIST_Data"
 if Celebdataset is True:
-    TrainDataLoc = "/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/Celeb"
+    TrainDataLoc = "C:\TransferToServerJavid\Celeb"
 if Cerebellumdataset is True:
     TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari"
     import nibabel as nib
@@ -94,7 +94,7 @@ transforms = transforms.Compose(
 if FFHQdataset == True:
     DataLoading = FFHQ_Dataset(TrainDataLoc, transform=transforms)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
-
+    
 if MNISTdataset == True:
     DataLoading = datasets.MNIST(root=TrainDataLoc, transform=transforms, download=True)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
@@ -105,7 +105,8 @@ if Celebdataset == True:
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
 if Cerebellumdataset is True:
-    DataLoading = CerebellumData(TrainDataLoc, transform=transforms)
+    TrainDataLocFinal = TrainDataLoc+"/Data"
+    DataLoading = CerebellumData(TrainDataLocFinal, transform=transforms)
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
 fixed_noise_For_Tensorboard = torch.randn(Num_Imgs_On_Tensorboard, Noise_Dim, 1, 1).to(device)
