@@ -65,17 +65,17 @@ class CerebellumData(Dataset):
 
         else:
             maskedimage = train_mask_final * train_data_final
-            SavePath = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil.nii')
-            Path2 = "C:\TransferToServerJavid\file.nii.gz" #'C:\Users\Kurtlab\Desktop\here.nii'
-            nib.save(maskedimage,Path2)
+            SavePath = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil')
+            print(SavePath)
+            nib.save(nib.Nifti1Image(maskedimage, affine=np.eye(4)), SavePath)
             
-        return maskedimage.to(torch.float32), 0
+        return 0, 0
 
     def __len__(self):
         return len(self.train_mask_foldernames_NoExtra)
 
 
-TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari\Data"
+TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari/Data"
 Noise_Dim = 128
 Image_Width = 64
 Image_Height = 64
@@ -103,5 +103,5 @@ DataLoadPractice = CerebellumData(TrainDataLoc, transform=None)
 IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
 
 for i, image in enumerate(IterationOfTheData):
-    for i in range(image.shape[0]):
-        plt.imshow(image[0,0,0])
+    # for i in range(image.shape[0]):
+    print()
