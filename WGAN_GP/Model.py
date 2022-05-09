@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class critic(nn.Module):
     def __init__(self, in_channels, feature_d):
-        super(critic, self).__init__() #Differentce between super(Discriminator) and super() should be checked!
+        super(critic, self).__init__()
 
         self.disc = nn.Sequential(
             nn.Conv2d(in_channels, feature_d, kernel_size=4, stride=2, padding=1),
