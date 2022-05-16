@@ -72,5 +72,5 @@ def Initialize_Weight(Model):
 
 # sys.exit("Testing the Disc and Genrator networks")
 
-# if __name__== "__Main__":
-#     Model
+if __name__== "__Main__":
+    # Model
