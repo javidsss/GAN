@@ -37,35 +37,22 @@ class CerebellumData(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'T1.nii')
-        train_data_numpy3D = np.array(nib.load(train_loc_final).get_fdata())
-        train_data_numpy = np.squeeze(train_data_numpy3D[math.ceil(train_data_numpy3D.shape[0]/2), :, : ])
+        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil.nii')
+        train_data_numpy = np.array(nib.load(train_loc_final).get_fdata())
         [h, w] = train_data_numpy.shape
         if self.scale_factor is not None:
             train_data_final = np.zeros([int(math.ceil(h / self.scale_factor)), int(math.ceil(w / self.scale_factor))], dtype='float32')
             train_data_final[:, :] = cv2.resize(train_data_numpy[:, :], dsize=(int(math.ceil(w / self.scale_factor)), int(h / self.scale_factor)))  # open cvs size input automatically transposes the sizess!!!
         else:
             train_data_final = train_data_numpy
-        
 
-        train_mask_loc_final = os.path.join(self.train_loc, self.train_mask_foldernames_NoExtra[index], 'CerebralTonsilMask.nii')
-        train_mask_numpy3D = np.array(nib.load(train_mask_loc_final).get_fdata())
-        train_mask_numpy = np.squeeze(train_mask_numpy3D[math.ceil(train_mask_numpy3D.shape[0]/2), :, :])
-        if self.scale_factor is not None:
-            train_mask_final = np.zeros([int(math.ceil(h / self.scale_factor)), int(math.ceil(w / self.scale_factor))], dtype='float32')
-            train_mask_final[:, :] = cv2.resize(train_mask_numpy[:, :], dsize=(int(math.ceil(w / self.scale_factor)), int(h / self.scale_factor))) #open cvs size input automatically transposes the sizess!!!
+        if transforms is not None:
+            train_data_final = self.transform(train_data_final)
         else:
-            train_mask_final = train_mask_numpy
+            train_data_final=train_data_final
 
 
-        if self.transform is not None:    
-            maskedimage = train_mask_final*train_data_final
-            maskedimage = self.transform(maskedimage)
-
-        else:
-            maskedimage = train_mask_final * train_data_final
-
-        return maskedimage.to(torch.float32), 0
+        return train_data_final.to(torch.float32), 0
 
     def __len__(self):
         return len(self.train_mask_foldernames_NoExtra)

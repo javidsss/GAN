@@ -37,7 +37,7 @@ class CerebellumData(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'T1.nii')
+        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'T1_LPI.nii')
         train_data_numpy3D = np.array(nib.load(train_loc_final).get_fdata())
         train_data_numpy = np.squeeze(train_data_numpy3D[math.ceil(train_data_numpy3D.shape[0]/2), :, : ])
         [h, w] = train_data_numpy.shape
@@ -48,7 +48,7 @@ class CerebellumData(Dataset):
             train_data_final = train_data_numpy
         
 
-        train_mask_loc_final = os.path.join(self.train_loc, self.train_mask_foldernames_NoExtra[index], 'CerebralTonsilMask.nii')
+        train_mask_loc_final = os.path.join(self.train_loc, self.train_mask_foldernames_NoExtra[index], 'aseg_LPI.nii')
         train_mask_numpy3D = np.array(nib.load(train_mask_loc_final).get_fdata())
         train_mask_numpy = np.squeeze(train_mask_numpy3D[math.ceil(train_mask_numpy3D.shape[0]/2), :, :])
         if self.scale_factor is not None:
@@ -59,15 +59,21 @@ class CerebellumData(Dataset):
 
 
         if self.transform is not None:    
-            maskedimage = train_mask_final*train_data_final
-            maskedimage = self.transform(maskedimage)
-            nib.save(maskedimage.to(torch.float32), os.path.join(train_loc_final, '2DTonsil.nii'))
+            train_mask_finalIndex = np.isin(train_mask_final, [6, 7, 8, 45, 46, 47])
+            train_mask_final_Ones = train_mask_finalIndex.astype(int)
+            MaskedImage = train_mask_final_Ones*train_data_final
+            MaskedImage = self.transform(MaskedImage)
+            # nib.save(maskedimage.to(torch.float32), os.path.join(train_loc_final, '2DTonsil.nii'))
 
         else:
-            maskedimage = train_mask_final * train_data_final
+            
+            train_mask_finalIndex = np.isin(train_mask_final, [6, 7, 8, 45, 46, 47])
+            train_mask_final_Ones = train_mask_finalIndex.astype(int)
+            MaskedImage = train_mask_final_Ones*train_data_final
+            
             SavePath = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil')
             print(SavePath)
-            nib.save(nib.Nifti1Image(maskedimage, affine=np.eye(4)), SavePath)
+            # nib.save(nib.Nifti1Image(maskedimage, affine=np.eye(4)), SavePath)
             
         return 0, 0
 
@@ -75,7 +81,7 @@ class CerebellumData(Dataset):
         return len(self.train_mask_foldernames_NoExtra)
 
 
-TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari/Data"
+TrainDataLoc = "Z:\Chiari_Morphology\AutomaticSegmentationData\Combined\Chiari\Data"
 Noise_Dim = 128
 Image_Width = 64
 Image_Height = 64

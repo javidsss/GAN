@@ -32,7 +32,7 @@ if MNISTdataset is True:
 if Celebdataset is True:
     TrainDataLoc = "C:\TransferToServerJavid\Celeb"
 if Cerebellumdataset is True:
-    TrainDataLoc = "Z:\Chiari Morphology\AutomaticSegmentationData\Combined\Chiari"
+    TrainDataLoc = "Z:\Chiari_Morphology\AutomaticSegmentationData\Combined\Chiari"
     import nibabel as nib
     import math
 
@@ -44,7 +44,7 @@ Image_Width = 64
 Image_Height = 64
 Num_ColorChannels = 1
 batch_size = 8
-num_epochs = 100
+num_epochs = 5000
 feature_d = 64
 feature_g = 64
 Num_Imgs_On_Tensorboard = 32
