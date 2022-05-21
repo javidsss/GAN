@@ -12,6 +12,8 @@ from Utils import gradient_penalty
 # import matplotlib.pyplot as plt
 # import sys
 
+MacAddress = True
+
 Model_Save = True
 Model_Load = False
 
@@ -25,16 +27,28 @@ Celebdataset = False
 Cerebellumdataset = True
 
 
-if FFHQdataset is True:
-    TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/FFHQ/Images_Combined'
-if MNISTdataset is True:
-    TrainDataLoc = "C:\TransferToServerJavid\MNIST_Data"
-if Celebdataset is True:
-    TrainDataLoc = "C:\TransferToServerJavid\Celeb"
-if Cerebellumdataset is True:
-    TrainDataLoc = "Z:\Chiari_Morphology\AutomaticSegmentationData\Combined\Chiari"
-    import nibabel as nib
-    import math
+if MacAddress is True:
+    if FFHQdataset is True:
+        TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/FFHQ/Images_Combined'
+    if MNISTdataset is True:
+        TrainDataLoc = "C:\TransferToServerJavid\MNIST_Data"
+    if Celebdataset is True:
+        TrainDataLoc = "C:\TransferToServerJavid\Celeb"
+    if Cerebellumdataset is True:
+        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari"
+        import nibabel as nib
+        import math
+else:
+    if FFHQdataset is True:
+        TrainDataLoc = '/Users/javidabderezaei/Downloads/TransferToServer/GAN-Projects/FFHQ/Images_Combined'
+    if MNISTdataset is True:
+        TrainDataLoc = "C:\TransferToServerJavid\MNIST_Data"
+    if Celebdataset is True:
+        TrainDataLoc = "C:\TransferToServerJavid\Celeb"
+    if Cerebellumdataset is True:
+        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari"
+        import nibabel as nib
+        import math
 
 ## Hyperparameters
 lr = 1e-4

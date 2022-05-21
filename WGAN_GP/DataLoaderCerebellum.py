@@ -37,7 +37,7 @@ class CerebellumData(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Tonsil.nii')
+        train_loc_final = os.path.join(self.train_loc, self.train_foldernames_NoExtra[index], 'MidSlice_Cerebellum_LPI.nii')
         train_data_numpy = np.array(nib.load(train_loc_final).get_fdata())
         [h, w] = train_data_numpy.shape
         if self.scale_factor is not None:
