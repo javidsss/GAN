@@ -159,12 +159,12 @@ for epoch in range(num_epochs):
         loss_gen.backward()
         gen_Optim.step()
 
-        if Batch_Index % 800 == 0 and Batch_Index != 0:
+        if epoch % 500 == 0 and Batch_Index != 0:
             if Model_Save == True:
                 ModelSave_func(crit, crit_Optim, loss_crit, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGANGP/Critic_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
                 ModelSave_func(gen, gen_Optim, loss_gen, batch_num=Batch_Index, epoch_num=epoch, path=f'{TrainDataLoc}/Model_Save_WGANGP/Generator_Epoch{epoch}_BatchIdx{Batch_Index}.pth')
 
-        if Batch_Index % 50 == 0:
+        if Batch_Index % 5 == 0:
             print(f"Batch: [{Batch_Index}/{len(IterationOfTheData)}] \ "
                   f"Epoch: [{epoch}/{num_epochs}] \ "
                   f"Loss critic: {loss_crit: 0.4f} & Loss Generator: {loss_gen: 0.4f}"
