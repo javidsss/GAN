@@ -14,6 +14,7 @@ from Utils import gradient_penalty
 
 MacAddress = True
 
+
 Model_Save = True
 Model_Load = False
 
