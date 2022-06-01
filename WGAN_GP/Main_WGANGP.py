@@ -11,7 +11,7 @@ from Model import critic, Generator, Initialize_Weight
 from Utils import gradient_penalty
 # import matplotlib.pyplot as plt
 # import sys
-#No update
+
 MacAddress = True
 
 Model_Save = True
