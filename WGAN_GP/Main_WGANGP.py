@@ -11,9 +11,8 @@ from Model import critic, Generator, Initialize_Weight
 from Utils import gradient_penalty
 # import matplotlib.pyplot as plt
 # import sys
-
+#No update
 MacAddress = True
-
 
 Model_Save = True
 Model_Load = False
@@ -36,7 +35,7 @@ if MacAddress is True:
     if Celebdataset is True:
         TrainDataLoc = "C:\TransferToServerJavid\Celeb"
     if Cerebellumdataset is True:
-        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari"
+        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology_GANs/AutomaticSegmentationData/Combined/Chiari"
         import nibabel as nib
         import math
 else:
@@ -47,9 +46,11 @@ else:
     if Celebdataset is True:
         TrainDataLoc = "C:\TransferToServerJavid\Celeb"
     if Cerebellumdataset is True:
-        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari"
+        TrainDataLoc = "/Volumes/Kurtlab/Chiari_Morphology_GANs/AutomaticSegmentationData/Combined/Chiari"
         import nibabel as nib
         import math
+
+TensorboardDirectory = '/Users/javidabderezaei/Downloads'
 
 ## Hyperparameters
 lr = 1e-4
@@ -125,10 +126,13 @@ if Cerebellumdataset is True:
     IterationOfTheData = DataLoader(DataLoading, batch_size=batch_size, shuffle=True)
 
 fixed_noise_For_Tensorboard = torch.randn(Num_Imgs_On_Tensorboard, Noise_Dim, 1, 1).to(device)
-writer_fake = SummaryWriter(f"{TrainDataLoc}/Tensorboard/runs/Fake")
-writer_real = SummaryWriter(f"{TrainDataLoc}/Tensorboard/runs/Real")
-step = 0
+# writer_fake = SummaryWriter(f"{TrainDataLoc}/Tensorboard/runs/Fake")
+# writer_real = SummaryWriter(f"{TrainDataLoc}/Tensorboard/runs/Real")
+writer_fake = SummaryWriter(f"{TensorboardDirectory}/Tensorboard/runs/Fake")
+writer_real = SummaryWriter(f"{TensorboardDirectory}/Tensorboard/runs/Real")
 
+
+step = 0
 for epoch in range(num_epochs):
     if Model_Load is True:
         epoch = epoch_saved + epoch
