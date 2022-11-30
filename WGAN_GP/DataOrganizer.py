@@ -92,44 +92,44 @@ class CerebellumData(Dataset):
         return len(self.train_mask_foldernames_NoExtra)
 
 
+if __name__== "__Main__":
+    # WorkstationAddress = "Z:\Chiari_Morphology\AutomaticSegmentationData\Combined\Chiari\Data"
+    MacAddress = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari/Data"
 
-# WorkstationAddress = "Z:\Chiari_Morphology\AutomaticSegmentationData\Combined\Chiari\Data"
-MacAddress = "/Volumes/Kurtlab/Chiari_Morphology/AutomaticSegmentationData/Combined/Chiari/Data"
 
+    if 'MacAddress' in locals():
+        TrainDataLoc = MacAddress
+    if "WorkstationAddress" in locals():
+        TrainDataLoc = WorkstationAddress
 
-if 'MacAddress' in locals():
-    TrainDataLoc = MacAddress
-if "WorkstationAddress" in locals():
-    TrainDataLoc = WorkstationAddress
+    Noise_Dim = 128
+    Image_Width = 64
+    Image_Height = 64
+    Num_ColorChannels = 1
+    batch_size = 1
+    num_epochs = 100
+    feature_d = 64
+    feature_g = 64
+    Num_Imgs_On_Tensorboard = 32
+    Critic_Iteration = 5
+    Lambda_GradientPenalty = 10
 
-Noise_Dim = 128
-Image_Width = 64
-Image_Height = 64
-Num_ColorChannels = 1
-batch_size = 1
-num_epochs = 100
-feature_d = 64
-feature_g = 64
-Num_Imgs_On_Tensorboard = 32
-Critic_Iteration = 5
-Lambda_GradientPenalty = 10
-
-transforms = transforms.Compose(
-    [
-    transforms.ToTensor(),
-    transforms.Resize([Image_Width, Image_Height]),
-    transforms.Normalize(
-        [0.5 for ii in range(Num_ColorChannels)], [0.5 for ii in range(Num_ColorChannels)]
+    transforms = transforms.Compose(
+        [
+        transforms.ToTensor(),
+        transforms.Resize([Image_Width, Image_Height]),
+        transforms.Normalize(
+            [0.5 for ii in range(Num_ColorChannels)], [0.5 for ii in range(Num_ColorChannels)]
+        )
+        ]
     )
-    ]
-)
 
 
-DataLoadPractice = CerebellumData(TrainDataLoc, transform=None)
-IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
+    DataLoadPractice = CerebellumData(TrainDataLoc, transform=None)
+    IterationOfTheData = DataLoader(DataLoadPractice, batch_size=batch_size, shuffle=False)
 
-for i, (train_data_final, train_mask_final_Ones, MaskedImage) in enumerate(IterationOfTheData):
+    for i, (train_data_final, train_mask_final_Ones, MaskedImage) in enumerate(IterationOfTheData):
 
-    plt.imshow(MaskedImage[0,:,:])
-    plt.close()
-    print(f'Save_Index_{i}')
+        plt.imshow(MaskedImage[0,:,:])
+        plt.close()
+        print(f'Save_Index_{i}')
